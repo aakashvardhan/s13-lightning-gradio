@@ -1,9 +1,9 @@
-import torch
+
 import lightning as L
+import torch
+from torch.utils.data import DataLoader, random_split
+
 from s11_gradcam.utils import CIFAR10Dataset
-from torch.utils.data import DataLoader, Dataset, random_split
-from torchvision import datasets
-import os
 
 # For reproducibility
 torch.manual_seed(1)
