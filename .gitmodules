@@ -1,5 +1,2 @@
-[submodule "s11-gradcam"]
-	path = s11-gradcam
-	url = https://github.com/aakashvardhan/s11-gradcam.git
-[submodule "s11-gradcam/"]
+[submodule "s11_gradcam/"]
 	url = https://github.com/aakashvardhan/s11_gradcam.git
