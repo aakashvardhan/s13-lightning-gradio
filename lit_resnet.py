@@ -98,14 +98,14 @@ class LitResNet(L.LightningModule):
         )
 
         self.trainer.fit_loop.setup_data()
-        dataloader = self.trainer.fit_loop.train_dataloader
+        dataloader = self.trainer.train_dataloader
         scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer,
             max_lr=self.config[
                 "best_lr"
             ],  # need to manually set this after using torch-lr-finder
             steps_per_epoch=len(dataloader),
-            epochs=self.config["epochs"],
+            epochs=self.config["num_epochs"],
             pct_start=5 / 24,
             div_factor=100,
             three_phase=False,
