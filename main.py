@@ -14,10 +14,10 @@ from lightning.pytorch.callbacks import (
 
 from lit_datamodule import CIFAR10DataModule
 from lit_resnet import LitResNet
-from s11_gradcam import get_config
+from config import get_config
 
 
-def main(cfg, args, ckpt=False):
+def main(cfg, arg):
     """
     Main function for training and evaluating the ResNet model.
     """
@@ -37,11 +37,11 @@ def main(cfg, args, ckpt=False):
     # Initialize the Lightning Trainer
 
     trainer = L.Trainer(
-        precision="16-mixed",
+        precision=cfg["precision"],
         max_epochs=cfg["num_epochs"],
         logger=tb_logger,
-        accelerator="cuda",
-        devices=args.devices,
+        accelerator=cfg["accelerator"],
+        devices=arg.devices,
         callbacks=[
             ModelCheckpoint(
                 dirpath=cfg["model_folder"],
@@ -53,7 +53,7 @@ def main(cfg, args, ckpt=False):
             ),
             LearningRateMonitor(logging_interval="step", log_momentum=True),
             RichModelSummary(),
-            EarlyStopping(monitor="train_loss", mode="min", stopping_threshold=1.5),
+            EarlyStopping(monitor="train_loss", mode="min", stopping_threshold=0.15),
         ],
         gradient_clip_val=0.5,
         deterministic=True,
@@ -86,7 +86,7 @@ def main(cfg, args, ckpt=False):
 
     # Train the model
 
-    if config["ckpt"]:
+    if cfg["ckpt"]:
         trainer.fit(model, datamodule=data_module, ckpt_path=cfg["ckpt_path"])
 
     else:
