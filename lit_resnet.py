@@ -126,9 +126,3 @@ class LitResNet(L.LightningModule):
         }
 
         return [optimizer], [lr_scheduler]
-
-    def on_train_epoch_start(self):
-        """
-        Prints the model summary when training starts.
-        """
-        model_summary(self.resnet, input_size=(3, 32, 32))
