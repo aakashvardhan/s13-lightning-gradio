@@ -56,6 +56,7 @@ def main(cfg, arg):
             EarlyStopping(monitor="train_loss", mode="min", stopping_threshold=0.15),
         ],
         gradient_clip_val=0.5,
+        progress_bar_refresh_rate=10,
         deterministic=True,
         num_sanity_val_steps=5,
         log_every_n_steps=1,
