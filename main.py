@@ -86,7 +86,7 @@ def main(cfg, arg):
 
     # Train the model
 
-    cfg["best_lr"] = suggested_lr
+    model.one_cycle_best_lr = suggested_lr
 
     if cfg["ckpt"]:
         trainer.fit(model, datamodule=data_module, ckpt_path=cfg["ckpt_path"])
