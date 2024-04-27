@@ -1,24 +1,29 @@
 import os
-
+from argparse import ArgumentParser
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import lightning as L
 from lightning.pytorch.loggers import TensorBoardLogger
-from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor, RichModelSummary,EarlyStopping
+from lightning.pytorch.callbacks import (
+    ModelCheckpoint,
+    LearningRateMonitor,
+    RichModelSummary,
+    EarlyStopping,
+)
 
 from lit_datamodule import CIFAR10DataModule
 from lit_resnet import LitResNet
 from s11_gradcam import get_config
 
 
-def main(cfg):
+def main(cfg, args, ckpt=False):
     """
     Main function for training and evaluating the ResNet model.
     """
 
     # Set the seed for reproducibility
-    L.seed_everything(1, workers=True)
+    L.seed_everything(42, workers=True)
     print("Seed set for reproducibility...")
 
     # Initialize the data module
@@ -31,15 +36,79 @@ def main(cfg):
     tb_logger = TensorBoardLogger(save_dir="logs/", name="model")
     # Initialize the Lightning Trainer
 
-    trainer = L.Trainer(precision="16-mixed",max_epochs=cfg["num_epochs"], logger=tb_logger,
-                        accelerator="cuda",
-                        devices="auto",
-                        callbacks=[
-                        ModelCheckpoint(dirpath=cfg['model_folder'], save_top_k=3, monitor="train_loss",mode="min",filename="model-{epoch:02d}-{train_loss:4f}",save_last=False),
-                        LearningRateMonitor(logging_interval="step", log_momentum=True),
-                        RichModelSummary(),EarlyStopping(monitor="train_loss", mode="min", stopping_threshold=1.5)],
-                        gradient_clip_val=0.5,
-                        num_sanity_val_steps=10,
-                        log_every_n_steps=1,
-                        check_val_every_n_epoch=2,
-                        limit_val_batches=1000)
+    trainer = L.Trainer(
+        precision="16-mixed",
+        max_epochs=cfg["num_epochs"],
+        logger=tb_logger,
+        accelerator="cuda",
+        devices=args.devices,
+        callbacks=[
+            ModelCheckpoint(
+                dirpath=cfg["model_folder"],
+                save_top_k=3,
+                monitor="train_loss",
+                mode="min",
+                filename="model-{epoch:02d}-{train_loss:4f}",
+                save_last=False,
+            ),
+            LearningRateMonitor(logging_interval="step", log_momentum=True),
+            RichModelSummary(),
+            EarlyStopping(monitor="train_loss", mode="min", stopping_threshold=1.5),
+        ],
+        gradient_clip_val=0.5,
+        deterministic=True,
+        num_sanity_val_steps=5,
+        log_every_n_steps=1,
+        check_val_every_n_epoch=2,
+        limit_val_batches=1000,
+    )
+
+    tuner = L.pytorch.tuner.Tuner(trainer)
+
+    model = LitResNet(cfg)
+
+    lr_finder = tuner.lr_find(
+        model, datamodule=data_module, num_training=trainer.max_epochs
+    )
+    print(lr_finder)
+
+    # Check if the lr_finder has completed successfully
+    if lr_finder:
+        # Plot with suggest=True to find the suggested learning rate
+        fig = lr_finder.plot(suggest=True)
+        fig.show()
+
+        # Get the suggested learning rate
+        suggested_lr = lr_finder.suggestion()
+        print(f"Suggested learning rate: {suggested_lr}")
+    else:
+        print("Learning rate finding did not complete successfully.")
+
+    # Train the model
+
+    if config["ckpt"]:
+        trainer.fit(model, datamodule=data_module, ckpt_path=cfg["ckpt_path"])
+
+    else:
+        trainer.fit(model, datamodule=data_module)
+
+    # Evaluate the model
+    trainer.test(model, datamodule=data_module)
+    print("Model evaluation completed...")
+
+    # Save the model
+    torch.save(
+        model.state_dict(),
+        os.path.join(cfg["model_folder"], "saved_resnet18_model.pth"),
+    )
+
+    print("Model saved...")
+
+
+if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("--devices", default=None)
+
+    args = parser.parse_args()
+    config = get_config()
+    main(config, args)

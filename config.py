@@ -18,23 +18,16 @@ def get_config():
         "precision": 16,
         "progress_bar_refresh_rate": 10,
         "lr": 0.01,
-    }
-
-    return config
-
-
-def get_lrfinder_config():
-    """
-    Returns the configuration dictionary for the LR Finder.
-
-    Returns:
-        config (dict): A dictionary containing the configuration parameters.
-    """
-
-    config = {
+        "model_folder": "weights",
+        "model_basename": "model_",
+        "preload": True,
+        "experiment_name": "runs/model",
         "end_lr": 10,
         "num_iter": 100,
         "best_lr": 0.01,
+        "ckpt": False,
+        "ckpt_path": ""
     }
 
     return config
+
