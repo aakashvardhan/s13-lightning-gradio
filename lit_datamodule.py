@@ -50,7 +50,7 @@ class CIFAR10DataModule(L.LightningDataModule):
             test_data = CIFAR10Dataset(
                 root="./data", train=False, download=True, transform="test"
             )
-            self.train_data, self.val_data = random_split(train_data, [45000, 5000])
+            self.train_data = train_data
             self.test_data = test_data
 
     def train_dataloader(self):
