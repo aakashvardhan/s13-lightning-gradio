@@ -15,10 +15,17 @@ class LitResNet(L.LightningModule):
         config: Configuration parameters for the model.
     """
 
-    def __init__(self, config):
+    def __init__(self, 
+                 config,
+                 one_cycle_best_lr=0.01,
+                 learning_rate=0.01):
         super().__init__()
         self.resnet = ResNet18()
         self.config = config
+        self.learning_rate = learning_rate
+        self.one_cycle_best_lr = one_cycle_best_lr
+        
+        self.save_hyperparameters()
 
     def forward(self, x):
         """
@@ -94,16 +101,14 @@ class LitResNet(L.LightningModule):
             A tuple containing the optimizer and learning rate scheduler.
         """
         optimizer = torch.optim.Adam(
-            self.resnet.parameters(), lr=self.config["lr"], weight_decay=1e-4
+            self.resnet.parameters(), lr=self.learning_rate, weight_decay=1e-4
         )
 
         self.trainer.fit_loop.setup_data()
         dataloader = self.trainer.train_dataloader
         scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer,
-            max_lr=self.config[
-                "best_lr"
-            ],  # need to manually set this after using torch-lr-finder
+            max_lr=self.one_cycle_best_lr,  # need to manually set this after using torch-lr-finder
             steps_per_epoch=len(dataloader),
             epochs=self.config["num_epochs"],
             pct_start=5 / 24,
