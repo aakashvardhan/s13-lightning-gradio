@@ -33,7 +33,7 @@ def main(cfg, arg):
     print("Data prepared and setup completed...")
 
     # Tensorboard logger
-    tb_logger = TensorBoardLogger(save_dir="logs/", name="model")
+    tb_logger = TensorBoardLogger(save_dir=os.getcwd(), version=1, name="lightning_logs")
     # Initialize the Lightning Trainer
 
     trainer = L.Trainer(
@@ -59,7 +59,10 @@ def main(cfg, arg):
         progress_bar_refresh_rate=10,
         deterministic=True,
         num_sanity_val_steps=5,
-        log_every_n_steps=1,
+        overfit_batches=1000,
+        sync_batchnorm=True,
+        enable_progress_bar=True,
+        log_every_n_steps=5,
         check_val_every_n_epoch=2,
         limit_val_batches=1000,
     )
