@@ -1,4 +1,3 @@
-
 import lightning as L
 import torch
 from torch.utils.data import DataLoader, random_split
@@ -21,7 +20,7 @@ class CIFAR10DataModule(L.LightningDataModule):
         cuda = torch.cuda.is_available()
         if cuda:
             torch.cuda.manual_seed(1)
-        self.data_args = (
+        self.train_data_args = (
             dict(
                 shuffle=True,
                 batch_size=config["batch_size"],
@@ -30,6 +29,17 @@ class CIFAR10DataModule(L.LightningDataModule):
             )
             if cuda
             else dict(shuffle=True, batch_size=64)
+        )
+
+        self.test_data_args = (
+            dict(
+                shuffle=False,
+                batch_size=config["batch_size"],
+                num_workers=config["num_workers"],
+                pin_memory=True,
+            )
+            if cuda
+            else dict(shuffle=False, batch_size=64)
         )
 
     def prepare_data(self):
@@ -57,10 +67,10 @@ class CIFAR10DataModule(L.LightningDataModule):
         """
         Returns the train dataloader.
         """
-        return DataLoader(self.train_data, **self.data_args)
+        return DataLoader(self.train_data, **self.train_data_args)
 
     def test_dataloader(self):
         """
         Returns the test dataloader.
         """
-        return DataLoader(self.test_data, **self.data_args)
+        return DataLoader(self.test_data, **self.test_data_args)

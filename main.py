@@ -10,6 +10,7 @@ from lightning.pytorch.callbacks import (
     LearningRateMonitor,
     RichModelSummary,
     EarlyStopping,
+    TQDMProgressBar
 )
 
 from lit_datamodule import CIFAR10DataModule
@@ -49,11 +50,11 @@ def main(cfg, arg):
                 monitor="train_loss",
                 mode="min",
                 filename="model-{epoch:02d}-{train_loss:4f}",
-                save_last=False,
+                save_last=True,
             ),
             LearningRateMonitor(logging_interval="step", log_momentum=True),
-            RichModelSummary(),
             EarlyStopping(monitor="train_loss", mode="min", stopping_threshold=0.15),
+            TQDMProgressBar(refresh_rate=10)
         ],
         gradient_clip_val=0.5,
         deterministic=True,
@@ -104,10 +105,10 @@ def main(cfg, arg):
     # Save the model
     torch.save(
         model.state_dict(),
-        os.path.join(cfg["model_folder"], "saved_resnet18_model.pth"),
+        "saved_resnet18_model.pth",
     )
-
     print("Model saved...")
+    print("Training and evaluation completed...")
 
 
 if __name__ == "__main__":
