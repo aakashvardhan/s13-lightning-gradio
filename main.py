@@ -89,7 +89,8 @@ def main(cfg, ckpt_arg):
 
     model.one_cycle_best_lr = suggested_lr
 
-    if ckpt_arg.ckpt_path:
+    # if ckpt_arg.ckpt_path:
+    if ckpt_arg:
         input_ckpt_path = input("Enter the path to the checkpoint file: ")
         cfg["ckpt_path"] = input_ckpt_path
         trainer.fit(model, datamodule=data_module, ckpt_path=cfg["ckpt_path"])
@@ -110,10 +111,10 @@ def main(cfg, ckpt_arg):
     print("Training and evaluation completed...")
 
 
-if __name__ == "__main__":
-    parser = ArgumentParser()
-    parser.add_argument("--ckpt_path", default=False)
+# if __name__ == "__main__":
+#     parser = ArgumentParser()
+#     parser.add_argument("--ckpt_path", default=False)
 
-    args = parser.parse_args()
-    config = get_config()
-    main(config, args)
+#     args = parser.parse_args()
+#     config = get_config()
+#     main(config, args)
