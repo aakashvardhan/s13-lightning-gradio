@@ -24,7 +24,19 @@ def get_config():
         "experiment_name": "runs/model",
         "end_lr": 10,
         "num_iter": 100,
-        "ckpt_path": ""
+        "ckpt_path": "",
+        "classes": (
+            "plane",
+            "car",
+            "bird",
+            "cat",
+            "deer",
+            "dog",
+            "frog",
+            "horse",
+            "ship",
+            "truck",
+        )
     }
 
     return config
