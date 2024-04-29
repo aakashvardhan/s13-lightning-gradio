@@ -24,7 +24,6 @@ def get_config():
         "experiment_name": "runs/model",
         "end_lr": 10,
         "num_iter": 100,
-        "ckpt": False,
         "ckpt_path": ""
     }
 

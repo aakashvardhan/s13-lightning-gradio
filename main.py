@@ -18,7 +18,7 @@ from lit_resnet import LitResNet
 from config import get_config
 
 
-def main(cfg, arg):
+def main(cfg, ckpt_arg):
     """
     Main function for training and evaluating the ResNet model.
     """
@@ -42,7 +42,7 @@ def main(cfg, arg):
         max_epochs=cfg["num_epochs"],
         logger=tb_logger,
         accelerator=cfg["accelerator"],
-        devices=arg.devices,
+        devices="auto",
         callbacks=[
             ModelCheckpoint(
                 dirpath=cfg["model_folder"],
@@ -92,7 +92,9 @@ def main(cfg, arg):
 
     model.one_cycle_best_lr = suggested_lr
 
-    if cfg["ckpt"]:
+    if ckpt_arg.ckpt_path:
+        input_ckpt_path = input("Enter the path to the checkpoint file: ")
+        cfg["ckpt_path"] = input_ckpt_path
         trainer.fit(model, datamodule=data_module, ckpt_path=cfg["ckpt_path"])
 
     else:
@@ -113,7 +115,7 @@ def main(cfg, arg):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--devices", default=None)
+    parser.add_argument("--ckpt_path", default=False)
 
     args = parser.parse_args()
     config = get_config()
