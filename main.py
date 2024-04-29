@@ -8,7 +8,6 @@ from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import (
     ModelCheckpoint,
     LearningRateMonitor,
-    RichModelSummary,
     EarlyStopping,
     TQDMProgressBar
 )
@@ -57,9 +56,7 @@ def main(cfg, ckpt_arg):
             TQDMProgressBar(refresh_rate=10)
         ],
         gradient_clip_val=0.5,
-        deterministic=True,
         num_sanity_val_steps=5,
-        overfit_batches=1000,
         sync_batchnorm=True,
         enable_progress_bar=True,
         log_every_n_steps=5,

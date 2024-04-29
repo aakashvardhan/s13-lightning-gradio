@@ -65,6 +65,33 @@ class LitResNet(L.LightningModule):
         )
 
         return loss
+    
+    def validation_step(self, batch, batch_idx):
+        """
+        Performs a single validation step on the given batch of data.
+
+        Args:
+            batch: A tuple containing the input data and corresponding target labels.
+            batch_idx: The index of the current batch.
+
+        Returns:
+            The computed loss value for the validation step.
+        """
+        data, target = batch
+        output = self.resnet(data)
+        loss = F.cross_entropy(output, target)
+        pred = output.argmax(dim=1, keepdim=True)
+        correct = pred.eq(target.view_as(pred)).sum().item()
+        processed = len(data)
+        self.log(
+            "val_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True
+        )
+        acc = 100 * correct / processed
+        self.log(
+            "val_acc", acc, on_step=True, on_epoch=True, prog_bar=True, logger=True
+        )
+
+        return loss
 
     def test_step(self, batch, batch_idx):
         """

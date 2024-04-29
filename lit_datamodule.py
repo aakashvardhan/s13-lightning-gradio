@@ -60,7 +60,9 @@ class CIFAR10DataModule(L.LightningDataModule):
             test_data = CIFAR10Dataset(
                 root="./data", train=False, download=True, transform="test"
             )
-            self.train_data = train_data
+            self.train_data, self.val_data = random_split(
+                train_data, [45000, 5000], generator=torch.Generator().manual_seed(42)
+            )
             self.test_data = test_data
 
     def train_dataloader(self):
@@ -68,6 +70,12 @@ class CIFAR10DataModule(L.LightningDataModule):
         Returns the train dataloader.
         """
         return DataLoader(self.train_data, **self.train_data_args)
+    
+    def val_dataloader(self):
+        """
+        Returns the validation dataloader.
+        """
+        return DataLoader(self.val_data, **self.test_data_args)
 
     def test_dataloader(self):
         """
