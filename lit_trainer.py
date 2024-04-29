@@ -14,7 +14,7 @@ from lightning.pytorch.callbacks import (
 
 from lit_datamodule import CIFAR10DataModule
 from lit_resnet import LitResNet
-from config import get_config
+from lit_config import get_config
 
 
 def main(cfg, ckpt_arg):
