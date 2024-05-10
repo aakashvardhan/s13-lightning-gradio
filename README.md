@@ -155,4 +155,9 @@ Training and evaluation completed...
   </tr>
 </table>
 
+The graphs above were generated using TensorBoard. TensorBoard is a visualization toolkit that comes with TensorFlow, but it can also be used with PyTorch Lightning. It allows you to track and visualize metrics such as loss and accuracy during training.
+
+### Model Evaluation
+
+The model achieved an accuracy of 90.32% on the test set.
 
